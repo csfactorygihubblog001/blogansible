@@ -1,0 +1,87 @@
+# ========================================================
+# adminserv01にはSelnium Gridを入れてWEB画面テスト用の環境を設定
+# ========================================================
+---
+- hosts: adminservers
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+    #==================================================================
+    #JAVAのインストール確認(すでにインストールされているが冪等性を担保する為)
+    #==================================================================
+    - name: javaの存在確認
+      shell: which java
+      register: java_which
+      failed_when: java_which.rc not in [0, 1]
+
+    #==================================================================
+    #JAVAのインストール
+    #==================================================================
+    - name: Java インストール
+      yum: name=/var/opt/data/nfs/java/installer/jdk-7u79-linux-x64.rpm state=present
+      when: java_which.rc == 1
+
+    #==================================================================
+    # Seleniumディレクトリのオーナー　/　パーミッション設定
+    #==================================================================
+    - name: Selniumホームディレクトリのパーミッションを設定
+      file: group=selenium mode=755 owner=selenium path=/opt/selenium state=directory
+
+
+    # ========================================================
+    # tagにreinstallを指定した場合はseleniumを再インストールする
+    # ========================================================
+    - name: 実行時に指定するtagが"reinstall"の場合再実行する為一度削除する
+      shell: rm -f /opt/selenium/selenium.sh
+
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # Seleniumの存在確認をする
+    #==================================================================
+    - name: seleniumの存在確認(以下すべて存在してない場合のみ実行)
+      stat: path=/opt/selenium/selenium.sh
+      register: selenium_exists
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # Seleniumのjarファイルを/opt/seleniumを配置する
+    #==================================================================
+    - name: 未インストールの場合：Selniumのjarをコピー
+      command: "cp -r /var/opt/data/nfs/selenium/installer/selenium-server-standalone-2.48.2.jar /opt/selenium/."
+      when: not selenium_exists.stat.exists
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # systemdより呼び出されるseleium起動シェル
+    #==================================================================
+    - name: 未インストールの場合：起動shellをコピー
+      command: "cp -r /var/opt/data/nfs/selenium/settings/selenium.sh /opt/selenium/."
+      when: not selenium_exists.stat.exists
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # /opt/seleniumのディレクトリのパーミッションとオーナーを設定
+    # tomcatユーザー/パーミッション755
+    #==================================================================
+    - name: 未インストールの場合：パーミッションとユーザーの変更
+      file: group=selenium mode=755 owner=selenium path=/opt/selenium state=directory
+      when: not selenium_exists.stat.exists
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # selenium用のsystemd設定ファイル
+    #==================================================================
+    - name: 未インストールの場合：SYSTEMDのユニットファイルsystemDIRにコピーする
+      command: "cp /var/opt/data/nfs/selenium/settings/selenium_systemd.template_{{inventory_hostname}} /usr/lib/systemd/system/selenium.service"
+      when: not selenium_exists.stat.exists
+
+    #==================================================================
+    # (未インストール場合のみ)
+    # Seleniumサービスをリスタートする
+    #==================================================================
+    - name: Selniumサービスを起動する
+      service: name=selenium enabled=yes state=restarted
+      ignore_errors: True

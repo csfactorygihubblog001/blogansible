@@ -1,0 +1,36 @@
+# BOXから仮想マシン情報を削除
+vagrant box remove adminserv01
+vagrant box remove dbserv01
+vagrant box remove apserv01
+
+# 仮想マシン自体を削除
+vagrant destroy adminserv01
+vagrant destroy dbserv01
+vagrant destroy apserv01
+
+# BOXの仮想マシンを追加(情報のみ)
+vagrant box add adminserv01 ..\vagrant_boxfiles\adminserv01.box
+vagrant box add dbserv01 ..\vagrant_boxfiles\dbserv01.box
+vagrant box add apserv01  ..\vagrant_boxfiles\apserv01.box
+
+vagrant box list
+vagrant status
+
+# BOX起動(仮想サーバは初回にアンパックされて作られる)
+vagrant up
+
+vagrant sandbox on
+
+# サーバぐんのみコミット
+vagrant sandbox commit adminserv01 apserv01 dbserv01
+
+
+
+# サーバぐんのみコミット
+vagrant sandbox rollback adminserv01 apserv01 dbserv01
+
+
+#完成形をBOXファイルへパッケージ化
+vagrant package adminserv01 --output ..\vagrant_boxfiles\adminserv01_XXXXX.box
+vagrant package dbserv01 --output ..\vagrant_boxfiles\dbserv01_XXXXXfull.box
+vagrant package apserv01 --output  ..\vagrant_boxfiles\apserv01_XXXXXfull.box

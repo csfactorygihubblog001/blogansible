@@ -1,0 +1,62 @@
+#=============================================================================
+#ユーザー情報を変数定義します。
+#パスワードはハッシュ化する必要がある為pythonのコマンドにてハッシュ化したパスワードを
+# python -c 'import crypt; print crypt.crypt("パスワード", "$6$ソルトキー$")'
+#=============================================================================
+---
+  usergroup:
+    tomcat:
+      user: tomcat
+      group: tomcat
+      uid: 1200
+      gid: 1200
+      home: /home/tomcat
+      shell: /bin/bash
+      #=============================================================================
+      # python -c 'import crypt; print crypt.crypt("tomcat123", "$6$tomcatsolt$")'
+      #=============================================================================
+      password: $6$tomcatsolt$Dz8QThSePXH5WZ0EjLQbUA8pZJrgIl4.2qsflSWkn1gV.RqD84vPT0.tdThOEn1VyowWJBsTgm2rmv5oJixDJ1
+    apache:
+      user: apache
+      group: apache
+      uid: 1100
+      gid: 1100
+      home: /home/apache
+      shell: /bin/bash
+      #=============================================================================
+      # python -c 'import crypt; print crypt.crypt("apaches123", "$6$apachesolt$")'
+      #=============================================================================
+      password: $6$apachesolt$PnTyYlBO7ZAmPmXNBxAgWj03udlCNxqOqWvfik.fM3A84UTG.Un0cWUaXEl2vT2Acme.lMsPVRapEOZ9MhWYr0
+    mysql:
+      user: mysql
+      group: mysql
+      uid: 1300
+      gid: 1300
+      home: /home/mysql
+      shell: /bin/bash
+      #=============================================================================
+      # python -c 'import crypt; print crypt.crypt("mysql123", "$6$mysqlsolt$")'
+      #=============================================================================
+      password: $6$mysqlsolt$IeAbOR9NxGYA3Os9p43DRjdGvuTae62i707gWa2/XP/IFVyjHIYsEe/gH5uc15pxwyhAk8kGuRbi6Iinga5wh/
+    infra:
+      user: infra
+      group: infra
+      uid: 1400
+      gid: 1400
+      home: /home/infra
+      shell: /bin/bash
+      #=============================================================================
+      # python -c 'import crypt; print crypt.crypt("infra123", "$6$infrasolt$")'
+      #=============================================================================
+      password: $6$infrasolt$a2vFx7QL/cV2Nplcy1AxeRp8Ss34MPTjkbKpu7au.kq.PXshj8K177TUH9Pj5wtG8Y83Ea5Nv8UlvRuBMN5Fu0
+    selenium:
+      user: selenium
+      group: selenium
+      uid: 1600
+      gid: 1600
+      home: /home/selenium
+      shell: /bin/bash
+      #=============================================================================
+      # python -c 'import crypt; print crypt.crypt("selenium123", "$6$seleniumsolt$")'
+      #=============================================================================
+      password: $6$seleniumsolt$fl7ibc.Xf/.xnbIFqIXuGA3rtddYdZiUILqVvJO06cjGXy.HmpDh1LjXZYLKqzZymjn1GqmQkz2ndc8lfbfTz/

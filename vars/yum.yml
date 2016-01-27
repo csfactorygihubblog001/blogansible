@@ -1,0 +1,32 @@
+---
+  rpm:
+    package:
+      vim: vim
+      openssl: openssl
+      httpd: httpd
+      wget: wget
+      unzip: unzip
+      gcc: gcc
+      git: git
+      rsync: rsync
+      libffi_devel: libffi-devel.x86_64
+      bind_utils: bind-utils
+      net_tools: net-tools
+      mod_ssl: mod_ssl
+      manpage: man-pages-ja
+      chrony: chrony
+      openssl_devel: openssl-devel
+      readline_devel: readline-devel
+      zlib_devel: zlib-devel
+      psmisc: psmisc
+      nfs_utils: nfs-utils
+      mlocate: mlocate
+      mariadb: mariadb
+      mariadb_server: mariadb-server
+      epel: epel-release
+      openvpn: openvpn
+      expect: expect
+      libselinux_python: libselinux-python
+      easy_rsa: easy-rsa
+
+

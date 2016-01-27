@@ -1,0 +1,19 @@
+# ========================================================
+# hostsファイルにhost情報を書き込み
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # /etc/hosts内に
+    # 192.16..134.195がなかったら192.168.134.195 managetermを記述する
+    # 192.16..134.196がなかったら192.168.134.196 apserv01を記述する
+    # 192.16..134.197がなかったら192.168.134.197 dbserv01を記述する
+    # 192.16..134.198がなかったら192.168.134.198 adminserv01を記述する
+    # ========================================================
+    - debug: msg="HOST設定ファイルは環境依存します。環境変更時は切り替える必要有"
+    - lineinfile: state=present dest=/etc/hosts regexp='^192.168.134.195' line='192.168.134.195 manageterm' create=yes
+    - lineinfile: state=present dest=/etc/hosts regexp='^192.168.134.196' line='192.168.134.196 apserv01' create=yes
+    - lineinfile: state=present dest=/etc/hosts regexp='^192.168.134.197' line='192.168.134.197 dbserv01' create=yes
+    - lineinfile: state=present dest=/etc/hosts regexp='^192.168.134.198' line='192.168.134.198 adminserv01' create=yes

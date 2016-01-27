@@ -1,0 +1,53 @@
+# ========================================================
+# メインのymlファイル(site.xml)
+#   ** includeしか書きません。個別の処理はそれぞれの責務を **
+#   ** もつymlファイルに処理委譲し凝縮度を高めます。 **
+# ========================================================
+---
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+    - name: initilize Ansible
+      tags: allexec
+      debug: msg="Ansible実行します。"
+
+# ========================================================
+# OS環境の設定
+#    ** OS自体の設定を行います。**
+# ========================================================
+#- include: ./operations/0011_usergroup.yml
+#- include: ./operations/0012_yum.yml
+#- include: ./operations/0021_selinux.yml
+#- include: ./operations/0031_reboot.yml
+#- include: ./operations/0041_firewalldstop.yml
+#- include: ./operations/0061_filedir.yml
+#- include: ./operations/0071_filescopy.yml
+#- include: ./operations/0075_hosts.yml
+#- include: ./operations/0081_nfs.yml
+#- include: ./operations/0091_env.yml
+
+# ========================================================
+# ソフトウェア/ミドルウェアのインストール/設定/サービス起動
+#   ** ミドル/ソフトウェア単位にymlをわけ出来るだけyum内で  **
+#    ** 自己完結するようにします。                         **
+# ========================================================
+# - include: ./operations/1001_nmon.yml
+- include: ./operations/1011_ruby.yml
+# - include: ./operations/1021_javatomcat.yml
+# - include: ./operations/1022_selenium.yml
+# - include: ./operations/1031_jenkinsmvn.yml
+# - include: ./operations/1041_chrony.yml
+# - include: ./operations/1051_apache.yml
+# - include: ./operations/1061_openvpn.yml
+# - include: ./operations/1071_mysql.yml
+
+# ========================================================
+#ファイヤーウォールの設定
+# ========================================================
+#  - include: ./operations/3001_firewalld.yml
+
+# ========================================================
+#最終処理
+# ========================================================
+# - include: ./operations/9001_finish.yml

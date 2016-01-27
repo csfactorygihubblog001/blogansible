@@ -1,0 +1,212 @@
+# =======================================================================
+# openvpnをインストールしてCA/SERVER/client証明書を作成する(openvpn.yml
+# =======================================================================
+---
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    # ========================================================
+    # openvpnをyumリポジトリよりインストールする
+    # ========================================================
+    - name: openvpnパッケージインストトール
+      yum: name={{rpm.package.openvpn }} state=latest
+
+    # ========================================================
+    # 秘密鍵/公開鍵証明書の作成はeasy-rsa2を使用する。(yumリポジトリよりインストール)
+    # ========================================================
+    - name: easy_rsaパッケージインストトール
+      yum: name={{rpm.package.easy_rsa }} state=latest
+
+    - name: easy-rsaディレクトリの作成
+      file: path=/etc/openvpn/easy-rsa state=directory
+
+    # ========================================================
+    # openvpnのログは/var/log/openvpnに出力するようにする為先に作成
+    # ========================================================
+    - name: ログフォルダ作成
+      file: state=directory owner=root group=root mode=0660 path=/var/log/openvpn
+
+    # ========================================================
+    # openvpnのインストール冪等性を/etc/openvpn/easy-rsa/commit
+    # が正しく生成されたら作成しないとする
+    #(本当はもっと考えるべきなんだろうどけ...)
+    # ========================================================
+    - name: /etc/openvpn/easy-rsa/commitにファイルが存在するか確認(このファイルがあるということは設定が完了している事とする)
+      stat: path=/etc/openvpn/easy-rsa/commit
+      register: rsa_exist
+
+    # ========================================================
+    # openvpnを一旦止める
+    # ========================================================
+    - name: 一旦サービスを無効にする。
+      service: name=openvpn@server enabled=no state=stoped
+      when: not rsa_exist.stat.exists
+      ignore_errors: True
+
+    # ========================================================
+    # easy-rsaを/etc/openvpn配下にコピー
+    # ========================================================
+    - name: easy-rsaのコピー
+      shell: cp /usr/share/easy-rsa/2.0/* /etc/openvpn/easy-rsa/.
+      when: not rsa_exist.stat.exists
+
+
+    # ========================================================
+    # 先にserver.confを/etc/openvpn/をコピーしておく。
+    # server.confは作成済であることとする。
+    # ========================================================
+    - name: OpenVPNサーバの設定ファイルを配置
+      shell: cp /var/opt/data/nfs/openvpn/settings/server.conf /etc/openvpn/server.conf
+      when: not rsa_exist.stat.exists
+
+
+    # ========================================================
+    # varsファイルは証明書の有効期限やデフォルトのOU等の情報を記述しておく
+    # ========================================================
+    - name: Easy-RSAの編集したvarsファイルをコピーする
+      shell: cp /var/opt/data/nfs/openvpn/settings/vars /etc/openvpn/easy-rsa/vars
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # openvpnの証明書作成(easy-rsaのbuild-keyコマンド等)はすべて対話型であるためexpectコマンドを使用して
+    # コマンドのQに対してAを記述しておく
+    # ========================================================
+    - name: CA証明書とサーバ証明書は対話型の為expectで対話処理を自動化する(expectコマンド群をコピー）
+      shell: cp /var/opt/data/nfs/openvpn/settings/exec*.exp /etc/openvpn/easy-rsa/.
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # CA秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 権限付与(CA_EXPECT)
+      file: state=file owner=root group=root mode=0755 path=/etc/openvpn/easy-rsa/exec_ca.exp
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # Server秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 権限付与(SERVER_EXPECT)
+      file: state=file owner=root group=root mode=0755 path=/etc/openvpn/easy-rsa/exec_server.exp
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 権限付与(CLIENT_EXPECT)
+      file: state=file owner=root group=root mode=0755 path=/etc/openvpn/easy-rsa/exec_ca.exp
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: CA証明書(公開鍵/秘密鍵)を作成
+      shell: . ./vars;./clean-all;./exec_ca.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: セッション鍵(共通鍵)を作成
+      shell: . ./vars;./build-dh chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: サーバ証明書(公開鍵/秘密鍵)を作成
+      shell: . ./vars;./exec_server.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: クライアント証明書(公開鍵/秘密鍵)を作成(uemura)
+      shell: . ./vars;export OPENVPN_CLINET_NM=uemura;./exec_client.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: クライアント証明書(公開鍵/秘密鍵)を作成(user01)
+      shell: . ./vars;export OPENVPN_CLINET_NM=user01;./exec_client.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: クライアント証明書(公開鍵/秘密鍵)を作成(user02)
+      shell: . ./vars;export OPENVPN_CLINET_NM=user02;./exec_client.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 失効リスト作成用ユーザー(revoke)のクライアント証明書(公開鍵/秘密鍵)を作成する
+      shell: . ./vars;export OPENVPN_CLINET_NM=revoke;./exec_client.exp chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 失効リスト作成用ユーザー(revoke)を失効させる(ここではステータスコード2がかえる(無視してよい))
+      shell: . ./vars;./revoke-full revoke chdir=/etc/openvpn/easy-rsa/
+      when: not rsa_exist.stat.exists
+      register: revoke_chk
+      failed_when: revoke_chk.rc not in [0, 2]
+
+#    easy-rsa2では証明書有効性のcrl.pemは初回失効時作成される
+#    - name: 証明書失効リストを作成する
+#      shell: . ./vars;./gen-crl chdir=/etc/openvpn/easy-rsa/
+#      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 作成した鍵や失効リストを/etc/openvpn配下にコピー
+      shell: cp ./ca.crt ./server.crt ./server.key ./crl.pem ./dh2048.pem ./index.txt ../../. chdir=/etc/openvpn/easy-rsa/keys
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: tar-gzip化(uemura)
+      shell: mkdir uemura;cp ./uemura.* ./uemura/.;tar cvzf uemura.tar.gz ./uemura chdir=/etc/openvpn/easy-rsa/keys
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: tar-gzip化(user01)
+      shell: mkdir user01;cp ./user01.* ./user01/.;tar cvzf user01.tar.gz ./user01 chdir=/etc/openvpn/easy-rsa/keys
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: tar-gzip化(user02)
+      shell: mkdir user02;cp ./user02.* ./user02/.;tar cvzf user02.tar.gz ./user02 chdir=/etc/openvpn/easy-rsa/keys
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 出力ファイルフォルダにクライアントキーを配置
+      shell: mv ./*.tar.gz /var/opt/data/nfs/output/. chdir=/etc/openvpn/easy-rsa/keys
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: 正常完了フラグ
+      shell: touch /etc/openvpn/easy-rsa/commit
+      when: not rsa_exist.stat.exists
+
+    # ========================================================
+    # クライアント秘密鍵/公開鍵証明書　作成用の/exec_caの配置と権限(755)を付与する
+    # ========================================================
+    - name: ファイヤーウォールをストップする(既にストップしてエラーになる場合は無視する)
+      service: name=openvpn@server enabled=yes state=restarted
+

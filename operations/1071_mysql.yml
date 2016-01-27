@@ -1,0 +1,71 @@
+# ========================================================
+# データベースサーバと管理サーバへのデータベース設定
+# ========================================================
+---
+- hosts: db_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    # ========================================================
+    # my.cnfに以下の設定を記述済
+    # ・DBサーバ設定の文字コードをUTF-8にする
+    # ・データフォルダを/var/opt/data/mysqlにする
+    # sockファイルは/var/lib/mysql/mysql.sockを参照してしまうため/var/opt/data/mysql/mysql.sock
+    # からシンボリックリンクを張る。
+    # ========================================================
+    - debug: msg="my.cnfをコピーする"
+    - shell: cp /var/opt/data/nfs/mysql/settings/my.cnf /etc/my.cnf
+
+    - debug: msg=my.conf権限変更
+    - file: group=mysql mode=644 owner=mysql path=/etc/my.cnf state=file
+
+
+    # ========================================================
+    # 初期設定にはmysql_secure_installationを使用する為
+    # 初期設定前に起動する。
+    # ========================================================
+    - name: マリアDBを使用可能してリスタートする
+      service: name=mariadb enabled=true state=restarted
+      ignore_errors: True
+
+    # ========================================================
+    # 冪等性を保つために今回は正常終了したら
+    # 完了を表すファイルをもって判断する。
+    # ========================================================
+    - name: mysql_install完了チェックの確認
+      stat: path=/var/opt/data/mysql/installok
+      register: mysql_exists
+
+    # ========================================================
+    # mysql_secure_instalationは/var/lib/mysql/mysql.sockのパスで参照する為
+    # シンボリックリンクを設定しておく。実態は/var/opt/data/mysql/mysql.sockに存在
+    # ========================================================
+    - name: mysql.sockのシンボリックリンク作成
+      file: src=/var/opt/data/mysql/mysql.sock  path=/var/lib/mysql/mysql.sock state=link
+
+    # ========================================================
+    # mysql_secure_instalationは対話型のインストールの為expectを使用する
+    # /var/opt/data/nfs/mysql/settings/init.expファイルは
+    # mysql_secure_instarationで対話が求められるQ(室温)に対して
+    # A(回答)を記述済
+    # ========================================================
+    - name: mysql_secure_installationの実行(expect)
+      shell: /var/opt/data/nfs/mysql/settings/init.exp
+      when: not mysql_exists.stat.exists
+
+    # ========================================================
+    # mysql_secure_instalationが完了したら初期設定完了の為
+    # 冪等性を保つためのファイルを作成する
+    # ========================================================
+    - name: mysql_secure_installationの完了
+      shell: touch /var/opt/data/mysql/installok
+      when: not mysql_exists.stat.exists
+
+    # ========================================================
+    # mariadbを再起動する
+    # ========================================================
+    - name: 再起動する
+      service: name=mariadb enabled=yes state=restarted
+      ignore_errors: True

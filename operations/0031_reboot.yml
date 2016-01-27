@@ -1,0 +1,60 @@
+# ========================================================
+# SELinuxのDisable設定を有効にするため再起動する(reboot.yml)
+# すべてのサーバのSELinuxを無効設定を有効にするため再起動
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # getenforeにてdisableが帰ってきた場合は再起動しないため確認
+    # regiter: selinux_resultはshellで表すと
+    # selinux_result = `getenforece`
+    #と同様
+    # registerが変数名でshellが実行したコマンド
+    # ========================================================
+    - name: SELinuxのDisable状態の確認
+      shell: "getenforce"
+      register: selinux_result
+
+    # ========================================================
+    # (shellモジュール:)2秒スリープしたのち再起動する。
+    #
+    #
+    # (async/pollモジュール:)「async=終了まで待つ時間」、「poll=終了までチェックする間隔」
+    # asyncで指定しpollでのチェック間隔で終了チェックをしつづけ終わらなければエラーとなる。
+    # 以下の場合poll=0を設定しており、ポーリングは行われず且つasyncの時間をまたずに完全に非同期処理となり
+    # 次のタスクを実行する
+    #
+    # (whenモジュール:)で上記①で変数指定したselinux_resultのstdout(標準出力結果)
+    # がdisable以外の場合のみ再起動する(whenはif文と同様)
+    #
+    #
+    # ignore_errorsはすべてのサーバ【 shell: sleep 2 && shutdown -r now "サーバ再起動"】でが失敗しても処理を終了せず
+    #
+    #またずに次のタスクをおこないます。
+    # ========================================================
+    - name: SELinuxのDisableでない場合サーバ再起動
+      shell: sleep 2 && shutdown -r now "サーバ再起動"
+      async: 1
+      poll: 0
+      ignore_errors: true
+      when: selinux_result.stdout != "Disabled"
+
+    # ========================================================
+    # 上記のタスクはasyncモジュールを使用しているので完了前に当該タスクが呼ばれる事になる。
+    # wait_for
+    # delayの値の間待機したのち
+    # hostの
+    # portに接続できるまで1秒(デフォルト)間隔で接続しに行く。
+    # 以下の設定では
+    #  inventory_hostname(Ansibleが設定しているサーバ)に対して20秒
+    # 待ってから22ポートに対して接続を300秒間(デフォルト)待ち続ける。
+    # 設定になる。
+    # ただし,当該タスクも条件(whenモジュール)に指定の
+    # selinux_resultのstdout(標準出力結果)
+    # がdisable以外の場合のみ再起動する(whenはif文と同様)
+    # ========================================================
+    - name: SELinuxのDisableでない場合サーバ再起動待ち
+      local_action: wait_for host={{ inventory_hostname }} port=22 delay=20
+      when: selinux_result.stdout != "Disabled"

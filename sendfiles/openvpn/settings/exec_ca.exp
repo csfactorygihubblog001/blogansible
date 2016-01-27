@@ -1,0 +1,51 @@
+#!/usr/bin/expect
+
+log_file /var/log/expect.log
+
+set timeout 5
+spawn env LANG=C /etc/openvpn/easy-rsa/build-ca
+expect {
+		"Country Name (2 letter code)" {
+			send "\n"
+		}
+	}
+
+expect {
+		"State or Province Name (full name)" {
+			send "\n"
+		}
+	}
+
+expect {
+		"Locality Name (eg, city) " {
+		send "\n"
+		}
+	}
+
+expect {
+		"Organization Name (eg, company) " {
+		send "\n"
+		}
+	}
+expect {
+		"Organizational Unit Name (eg, section) " {
+		send "\n"
+		}
+	}
+expect {
+		"Common Name (eg, your name or your server's hostname)" {
+		send "\n"
+		}
+	}
+expect {
+		"Name" {
+		send "\n"
+		}
+	}
+expect {
+		"Email Address " {
+		send "\n"
+		}
+	}
+	interact
+	exit 0

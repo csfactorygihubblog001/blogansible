@@ -1,0 +1,30 @@
+---
+system:
+  service:
+    http:
+      port: 80
+      name: http
+    https:
+      port: 443
+      name: https
+    mysql:
+      port: 3306
+      name: mysql
+    openvpn:
+      port: 1094
+      name: openvpn
+    ntp:
+      port: 123
+      name: ntp
+    nfs:
+      port: 2049
+      name: nfs
+    rpcbind:
+      port: 2049
+      name: "rpc-bind"
+    selenium:
+      port: 5555
+      name: "selenium"
+    tomcat:
+      port: 8080
+      name: "tomcat"

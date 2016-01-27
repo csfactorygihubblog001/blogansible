@@ -1,0 +1,12 @@
+# ========================================================
+# すべてのサーバのFirewalldをストップする。(firewalldstop.yml)
+# playbookの処理中は一旦すべて止めて最後に起動する
+# ========================================================
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  tasks:
+    - name: ファイヤーウォールをストップする
+      service: name=firewalld enabled=true state=stopped
+      ignore_errors: True
+

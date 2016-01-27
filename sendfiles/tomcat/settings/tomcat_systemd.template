@@ -1,0 +1,14 @@
+[Unit]
+Description=Tomcat7Server
+After=syslog.target network.target
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/sysconfig/tomcatenviroment
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+KillMode=none
+
+
+[Install]
+WantedBy=muliti-user.target

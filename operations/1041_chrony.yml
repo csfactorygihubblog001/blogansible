@@ -1,0 +1,46 @@
+#============================================================
+#NTP(chrony)をインストールする
+#============================================================
+---
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    # ========================================================
+    # すべてのサーバにNTP(chrony)をYUMにてインストール
+    # ========================================================
+    - name: YUMにてchronyをインストール
+      yum: name={{rpm.package.chrony }} state=present
+
+#============================================================
+#dbserv01,adminserv01はapserv01をタイムサーバにする
+#============================================================
+- hosts: db_admin
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # apserv01以外(dbserv01/adminserv01)はインターネット上の
+    # タイムサーバ(0.centos.pool.ntp.org)を参照せず
+    # apserv01をNTPとする。
+    # ========================================================
+    - name: chrony設定ファイルの書き換え(apserv01をタイムサーバとする)
+      replace:  dest=/etc/chrony.conf regexp='^server 0.centos.pool.ntp.org iburst' replace='server apserv01 iburst'
+
+#============================================================
+#すべてのサーバのNTPサーバを再起動する
+#============================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # NTPを再起動する
+    # ========================================================
+    - name: chronyの再起動する
+      service: name=chronyd enabled=yes state=restarted
+      ignore_errors: True
+
+

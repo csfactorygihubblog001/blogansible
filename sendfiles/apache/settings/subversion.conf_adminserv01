@@ -1,0 +1,10 @@
+<Location /repo>
+    DAV svn
+    #SVNParentPath  /var/opt/data/subversion/repo
+    SVNParentPath  /var/opt/data/subversion/repo
+    AuthType Basic
+    AuthName "Authentication"
+    AuthUserFile /var/opt/data/subversion/repo/.htpasswd
+    Require valid-user
+</Location>
+

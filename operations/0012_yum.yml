@@ -1,0 +1,94 @@
+# ========================================================
+# yumにてパッケージをインストールする(yum.yml)
+# ========================================================
+
+---
+# ========================================================
+# すべてのサーバにインストールするパッケージ
+# 主にサーバ固有のミドルウェア以外のライブラリやソフトウェア
+# をインストールする
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    - name: YUMインストール(全体)
+      yum: name=firewalld state=present
+    - yum: name={{rpm.package.vim }} state=present
+    - yum: name={{rpm.package.openssl }} state=present
+    - yum: name={{rpm.package.wget }} state=present
+    - yum: name={{rpm.package.unzip }} state=present
+    - yum: name={{rpm.package.gcc }} state=present
+    - yum: name={{rpm.package.git }} state=present
+    - yum: name={{rpm.package.rsync }} state=present
+    - yum: name={{rpm.package.libffi_devel }} state=present
+    - yum: name={{rpm.package.bind_utils }} state=present
+    - yum: name={{rpm.package.net_tools }} state=present
+    - yum: name={{rpm.package.manpage }} state=present
+    - yum: name={{rpm.package.chrony }} state=present
+    - yum: name={{rpm.package.openssl_devel }} state=present
+    - yum: name={{rpm.package.readline_devel }} state=present
+    - yum: name={{rpm.package.zlib_devel }} state=present
+    - yum: name={{rpm.package.psmisc }} state=present
+    - yum: name={{rpm.package.nfs_utils }} state=present
+    - yum: name={{rpm.package.mlocate }} state=present
+    - yum: name={{rpm.package.mariadb }} state=present
+    - yum: name={{rpm.package.expect }} state=present
+    # ========================================================
+    #AnsibleにてSELinuxを実行するのに必要
+    # ========================================================
+    - yum: name={{rpm.package.libselinux_python }} state=present
+
+# ========================================================
+# アパッチをインストール
+# java APサーバのTOMCATはyumではなく直接TOMCATのサイトからダウンロードした
+# ものを使用する為ここではインストールしない
+# ========================================================
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    - name: YUMインストール(apserv01とadminserv0にアパッチをインストール)
+      yum: name={{rpm.package.httpd }} state=present
+    - yum: name={{rpm.package.mod_ssl }} state=present
+
+# ========================================================
+# mysql(mariadb-server)をインストール
+# adminserv01にインストールするのは本番デプロイ前の確認用
+# ========================================================
+- hosts: db_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    - name: YUMインストール(dbserv01とadminserv01にmysqlをインストール)
+      yum: name={{rpm.package.mariadb_server }} state=present
+
+
+
+# ========================================================
+# adminserv01のみでyumからインストールするのはopenvpnのみ
+# SelniumやTomcatは本家サイトより直接ダウンロードする
+# ========================================================
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    # ========================================================
+    # ・openvpnをyumからインストールする為EPELリポジトリをインストールする
+    # ・openvpnに設定するSSL証明書作成にはeasy_rsaで作成する(直接OpenSSLコマンド使用しない)
+    # ========================================================
+    - name: YUMインストール(adminserv01にopenvpn関連をインストール。またアパッチのSVNモジュールもインストール)
+      yum: name={{rpm.package.epel }} state=present
+    - yum: name={{rpm.package.openvpn }} state=present
+    - yum: name={{rpm.package.easy_rsa }} state=present
+    - yum: name=mod_dav_svn state=present
+
+

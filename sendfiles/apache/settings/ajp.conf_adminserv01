@@ -1,0 +1,5 @@
+ProxyPass /jenkins/ ajp://localhost:8009/jenkins/
+ProxyPassReverse /jenkins/ ajp://localhost:8009/jenkins/
+ProxyPassReverseCookiePath /jenkins/ /jenkins/
+#ProxyPassReverseCookieDomain adminserv01 xxx.xxx.co.jp
+

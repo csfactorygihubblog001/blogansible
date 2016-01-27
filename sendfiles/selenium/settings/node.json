@@ -1,0 +1,29 @@
+{
+  "capabilities":
+      [
+        {
+          "browserName": "firefox",
+          "maxInstances": 3,
+          "version": "43.0",
+          "seleniumProtocol": "WebDriver"
+        },
+        {
+          "browserName": "chrome",
+          "maxInstances": 3,
+          "version": "47.0",
+          "seleniumProtocol": "WebDriver"
+         }
+//        },
+//        {
+//          "platform": "WINDOWS",
+//          "browserName": "internet explorer",
+//          "maxInstances": 1,
+//          "version": "11",
+//          "seleniumProtocol": "WebDriver"
+//        }
+      ],
+  "configuration":
+  {
+    "hub": "http://<<GRID_ID>>:4444/grid/register"
+  }
+}

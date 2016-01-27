@@ -1,0 +1,4 @@
+ProxyPass /wd/ ajp://localhost:8009/wd/
+ProxyPassReverse /wd/ ajp://localhost:8009/wd/
+ProxyPassReverseCookiePath /wd/ /wd/
+#ProxyPassReverseCookieDomain adminserv01 xxx.xxx.co.jp

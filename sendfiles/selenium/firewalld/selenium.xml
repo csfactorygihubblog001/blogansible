@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>selenium</short>
+  <description>Selnium-Grid Service Settings</description>
+  <port protocol="tcp" port="5555"/>
+</service>

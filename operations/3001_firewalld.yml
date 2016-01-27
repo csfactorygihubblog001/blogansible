@@ -1,0 +1,114 @@
+# ========================================================
+# firewalldの設定(firewalld.yml)
+# ========================================================
+---
+# ========================================================
+# すべてのサーバのFirawalld(Selenium,Tomcat)の設定ファイルを配置する
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/service.yml
+    - ../vars/yum.yml
+  tasks:
+    # ========================================================
+    # Firewalld用の設定ファイルを/etc/firewalld/services/
+    # 配下にコピーしてFirewalldに認識(再起動する)させる
+    # ========================================================
+    - name: Selenium Firewalld用設定ファイルを配置する
+      shell: cp /var/opt/data/nfs/selenium/firewalld/selenium.xml /etc/firewalld/services/.
+
+    - name: Tomact Firewalld用設定ファイルを配置する
+      shell: cp /var/opt/data/nfs/tomcat/firewalld/tomcat.xml /etc/firewalld/services/.
+      #念の為インストール（既に存在する場合はなにもしない）
+    - name: firewallのインストール
+      yum: name=firewalld state=present
+
+    - name: firewalldの有効化
+      service: name=firewalld enabled=true state=restarted
+
+
+# ========================================================
+# すべてのサーバのFirewall NTP設定
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/service.yml
+  tasks:
+    # ========================================================
+    # NTPを許可する
+    # ========================================================
+    - name: NTPの許可
+      firewalld: service={{ system.service.ntp.name }} permanent=true state=enabled
+
+
+# ========================================================
+# アプリケーションサーバ(apserv01)と管理サーバ(adminserv01)にFirewall HTTP設定
+# ========================================================
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/service.yml
+  tasks:
+    # ========================================================
+    # アパッチのファイヤーウォールを許可する
+    # ========================================================
+    - name: HTTPの許可
+      firewalld: service={{ system.service.http.name }} permanent=true state=enabled
+
+
+
+# ========================================================
+# データベースサーバ(dbserv01)にFirewall mariadb設定
+# ========================================================
+- hosts: dbservers
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/service.yml
+  tasks:
+    # ========================================================
+    # MariaDBのファイヤーウォールを許可する
+    # ========================================================
+    - name: MYSQL(mariadb)の許可
+      firewalld: service={{ system.service.mysql.name }} permanent=true state=enabled
+
+# ========================================================
+# 管理サーバ(adminserv01)にFirewall NFS/VPN/TOMCAT/MariaDB設定
+# ========================================================
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/service.yml
+  tasks:
+    # ========================================================
+    # ・FirewallにてNFS(nfsとrcp-bind)を許可
+    # ・FirewallにてOpenVPNを許可
+    # ・FirewallにてSleniumを許可
+    # ・FirewallにてTomcatを許可
+    # ・FirewallにてMariaDBを許可
+    # ========================================================
+    - name: NFSの許可
+      firewalld: service={{ system.service.nfs.name }} permanent=true state=enabled
+
+    - name: rpc-bindの許可
+      firewalld: service={{ system.service.rpcbind.name }} permanent=true state=enabled
+
+    - name: openvpnの許可
+      firewalld: service={{ system.service.openvpn.name }} permanent=true state=enabled
+
+    - name: seleniumの許可
+      firewalld: service={{ system.service.selenium.name }} permanent=true state=enabled
+
+    - name: TOMCATの許可
+      firewalld: service={{ system.service.tomcat.name }} permanent=true state=enabled
+
+    - name: MYSQL(mariadb)の許可
+      firewalld: service={{ system.service.mysql.name }} permanent=true state=enabled
+
+

@@ -1,0 +1,33 @@
+---
+- hosts: manageterm
+  sudo: no
+  remote_user: root
+  tasks:
+
+#- include: ./operationslocal/tmpyum.yml
+#- include: ./operationslocal/tmpselinux.yml
+#- include: ./operationslocal/tmpreboot.yml
+- include: ./operationslocal/tmpruby.yml
+#- include: ./operationslocal/tmpfirewalldstop.yml
+
+
+#    - name: asynctest
+#      shell: "while true; do sleep 1;echo 1;done"
+#      async: 10
+#      poll: 1
+#      ignore_errors: true
+#    - name: ok
+#      debug: msg="111"
+
+
+
+#    - name: initilize Ansible
+#      tags: allexec
+#      debug: msg="Ansible実行します。"
+#    - name: ok
+#      shell: mv /trewrwer/fsf /asfssd/.
+#      ignore_errors: true
+#    - name: ok
+#      debug: msg="111"
+
+

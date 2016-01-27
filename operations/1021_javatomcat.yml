@@ -1,0 +1,163 @@
+# ========================================================
+# JavaとTomcatをインストール設定(javatomcat.yml)
+# ========================================================
+---
+- hosts: ap_admin
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+    # ========================================================
+    # Javaのインストール確認
+    # ========================================================
+    - name: javaの存在確認
+      shell: which java
+      register: java_which
+      failed_when: java_which.rc not in [0, 1]
+
+    # ========================================================
+    # javaがインストールされていない場合Javaをインストール
+    # ========================================================
+    - name: Java インストール
+      yum: name=/var/opt/data/nfs/java/installer/jdk-7u79-linux-x64.rpm state=present
+      when: java_which.rc == 1
+
+
+    # ========================================================
+    # tagにreinstallを指定した場合はTomcatを再インストールする
+    # ========================================================
+    - name: 実行時に指定するtagsが"reinstall"の場合再実行する為一度削除する
+      shell: rm -f /opt/tomcat/bin/startup.sh
+      when: target == 'reinstall'
+
+   # ========================================================
+    # /opt/tomcat/bin/startup.shファイルが
+    # 存在する場合はインストール終了とする(冪等性は当該ファイルで担保)
+    # ========================================================
+    - name: tomcatの存在確認(以下すべて存在してない場合のみ実行)
+      stat: path=/opt/tomcat/bin/startup.sh
+      register: tomcatexists
+
+    # ========================================================
+    # tar.gz圧縮されたtomatを/tmpに展開する
+    # ========================================================
+    - name: 未インストールの場合：圧縮ファイルを展開する
+      command: tar zxvf /var/opt/data/nfs/tomcat/installer/apache-tomcat-7.0.65.tar.gz -C /tmp/.
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # /tmp配下にあるtomat7を/opt配下にコピーする
+    # ========================================================
+    - name: 未インストールの場合：展開したファイルを/opt/tomcat配下にコピーする
+      command: "cp -r /tmp/apache-tomcat-7.0.65/. /opt/tomcat/."
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # tomcatの環境変数を設定するsetenvファイルを/opt/tomcat/binにコピー
+    # ========================================================
+    - name: 未インストールの場合：envのファイルをコピー
+      command: "cp -r /var/opt/data/nfs/tomcat/settings/setenv.sh /opt/tomcat/bin/setenv.sh"
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # systemdの環境変数を設定するtomcatenviromentファイルをコピーする
+    # ========================================================
+    - name: 未インストールの場合：systemdのenviromentファイル
+      command: "cp  /var/opt/data/nfs/tomcat/settings/tomcatenviroment /etc/sysconfig/tomcatenviroment"
+      when: not tomcatexists.stat.exists
+
+
+    # ========================================================
+    # 不要になった/tmpファイルを削除する
+    # ========================================================
+    - name: 未インストールの場合：展開したフォルダを削除する
+      command: rm -rf /tmp/apache-tomcat-7.0.65
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # /opt/tomcatのパーミッションを再設定TOMCATユーザー 755を設定
+    # ========================================================
+    - name: 未インストールの場合：パーミッションとユーザーの変更
+      file:
+          recurse=yes
+          group={{path.dir.tomcat_home.group}}
+          mode={{path.dir.tomcat_home.permision}}
+          owner={{path.dir.tomcat_home.user}}
+          path={{path.dir.tomcat_home.path}}
+          state={{path.dir.tomcat_home.state}}
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # 事前に用意したtomcat自動起動設定ファイルを配置する
+    # ========================================================
+    - name: 未インストールの場合：SYSTEMDのユニットファイルsystemDIRにコピーする
+      command: "cp /var/opt/data/nfs/tomcat/settings/tomcat_systemd.template /usr/lib/systemd/system/tomcat.service"
+      when: not tomcatexists.stat.exists
+
+    # ========================================================
+    # 事前に用意したserver.xmlを配置する
+    # ========================================================
+    - name: server.xmlのコピー
+      command: "cp /var/opt/data/nfs/tomcat/settings/server.xml /opt/tomcat/conf/server.xml"
+      when: not tomcatexists.stat.exists
+
+
+#==================================================================
+#adminserv01のserver.xmlの変数を置換する
+#==================================================================
+- hosts: adminserv01
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+      #==================================================================
+      #adminserv01のserver.xmlの変数を置換する
+      #==================================================================
+    - name: server.xmlのIPアドレス部分を修正
+      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="192.168.102.198"
+      when: not tomcatexists.stat.exists
+
+#==================================================================
+#apserv01用にサーバXMLを編集
+#==================================================================
+- hosts: apserv01
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+      #==================================================================
+      #apserv01のserver.xmlの変数を置換する
+      #==================================================================
+    - name: server.xmlのIPアドレス部分を修正
+      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="192.168.102.196"
+      when: not tomcatexists.stat.exists
+
+
+
+#==================================================================
+#apserv01,adminserv01のTOMCATをリロード
+#==================================================================
+- hosts: ap_admin
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+      #==================================================================
+      # 事前に用意したtomcatのユーザーファイルを配置する
+      #==================================================================
+    - name: tomcat-users.xmlのコピー
+      command: "cp /var/opt/data/nfs/tomcat/settings/tomcat-users.xml /opt/tomcat/conf/tomcat-users.xml"
+      when: not tomcatexists.stat.exists
+
+      #==================================================================
+      # TOMCATサービスをリスタートする
+      #==================================================================
+    - name: TOMCATサービスをリスタートする
+      service: name=tomcat enabled=yes state=restarted
+      ignore_errors: True
+
+

@@ -1,0 +1,42 @@
+# ========================================================
+# yumにてパッケージをインストールする(yum.yml)
+# ========================================================
+
+---
+# ========================================================
+# すべてのサーバにインストールするパッケージ
+# 主にサーバ固有のミドルウェア以外のライブラリやソフトウェア
+# をインストールする
+# ========================================================
+- hosts: manageterm
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/yum.yml
+  tasks:
+    - name: YUMインストール(全体)
+      yum: name={{rpm.package.vim }} state=present
+    - yum: name={{rpm.package.openssl }} state=present
+    - yum: name={{rpm.package.wget }} state=present
+    - yum: name={{rpm.package.unzip }} state=present
+    - yum: name={{rpm.package.gcc }} state=present
+    - yum: name={{rpm.package.git }} state=present
+    - yum: name={{rpm.package.rsync }} state=present
+    - yum: name={{rpm.package.libffi_devel }} state=present
+    - yum: name={{rpm.package.bind_utils }} state=present
+    - yum: name={{rpm.package.net_tools }} state=present
+    - yum: name={{rpm.package.manpage }} state=present
+    - yum: name={{rpm.package.chrony }} state=present
+    - yum: name={{rpm.package.openssl_devel }} state=present
+    - yum: name={{rpm.package.readline_devel }} state=present
+    - yum: name={{rpm.package.zlib_devel }} state=present
+    - yum: name={{rpm.package.psmisc }} state=present
+    - yum: name={{rpm.package.nfs_utils }} state=present
+    - yum: name={{rpm.package.mlocate }} state=present
+    - yum: name={{rpm.package.mariadb }} state=present
+    - yum: name={{rpm.package.expect }} state=present
+    # ========================================================
+    #AnsibleにてSELinuxを実行するのに必要
+    # ========================================================
+    - yum: name={{rpm.package.libselinux_python }} state=present
+

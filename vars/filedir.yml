@@ -1,0 +1,96 @@
+---
+  path:
+    dir:
+      data_root:
+        path: /var/opt/data
+        user: infra
+        group: infra
+        state: directory
+        permision: 755
+      tomcat_home:
+        path: /opt/tomcat
+        user: tomcat
+        group: tomcat
+        state: directory
+        permision: 755
+      selenium_home:
+        path: /opt/selenium
+        user: selenium
+        group: selenium
+        state: directory
+        permision: 755
+      selenium_log:
+        path: /var/log/selenium
+        user: selenium
+        group: selenium
+        state: directory
+        permision: 755
+
+      mysql_data_home:
+        path: /var/opt/data/mysql
+        user: mysql
+        group: mysql
+        state: directory
+        permision: 755
+      tomcat_data_webapps:
+        path: /var/opt/data/tomcat/webapps
+        user: tomcat
+        group: tomcat
+        state: directory
+        permision: 755
+      tomcat_data_work:
+        path: /var/opt/data/tomcat/work
+        user: tomcat
+        group: tomcat
+        state: directory
+        permision: 755
+      nfs_root:
+        path: /var/opt/data/nfs
+        user: infra
+        group: infra
+        state: directory
+        permision: 755
+      nfs_installer:
+        path: /var/opt/data/nfs/installer
+        user: infra
+        group: infra
+        state: directory
+        permision: 755
+      nfs_work:
+        path: /var/opt/data/nfs/work
+        user: infra
+        group: infra
+        state: directory
+        permision: 755
+      nfs_settings:
+        path: /var/opt/data/nfs/settings
+        user: infra
+        group: infra
+        state: directory
+        permision: 755
+      jenkins_root:
+        path: /var/opt/data/jenkins
+        user: tomcat
+        group: tomcat
+        state: directory
+        permision: 755
+      ssl_root:
+        path: /etc/ssl/apserv_cets
+        user: root
+        group: root
+        state: directory
+        permision: 755
+  file:
+      tomcat:
+        install_check_file: /opt/tomcat/bin/startup.sh
+        installer: /var/opt/data/nfs/installer/tomcat7.tar.gz
+        unzip_ch_path: /tmp/.
+        unzip_after_file: /tmp/apache-tomcat-7.0.65
+      nmon:
+        install_check_file: /bin/nmon
+        installer: /var/opt/data/nfs/installer/centos7.tar.gz
+        unzip_ch_path: /bin
+        unzip_after_file: /bin/nmon_x86_64_centos7
+      java:
+        install_check_cmd: which java
+        installer: /var/opt/data/nfs/installer/jdk-7u79-linux-x64.rpm

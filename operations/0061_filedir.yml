@@ -1,0 +1,196 @@
+#＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+# ファイル＆ディレクトリ(filedir.yml)
+#＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+---
+# ========================================================
+# apserv01/adminserv01/dbserv01にインストールするミドルウェアの配置場所
+# や設定ファイル置き場の作成とオーナーとパーミッションせっていく
+# ========================================================
+
+- hosts: ap_db
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    # ========================================================
+    # 既にマウント済である場合は一旦マウントを外す
+    # ========================================================
+    - shell: mount |grep ^adminserv01
+      register: mounted
+      ignore_errors: True
+    # ========================================================
+    # すべてのサーバに
+    # /var/opt/data/nfsディレクトリをrootユーザー755で作成する。
+    # 当該フォルダにはインストーラや設定ファイルなどをコピーする。
+    # 後ほどNFSサーバを導入し当該ディレクトにファイルをコピーしたのち
+    # 資源配布を行うようにする
+    # ========================================================
+    - mount: path=/var/opt/data state=unmounted
+      when: mounted.rc == 1
+
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+      # ========================================================
+      # サーバの各種Pathの具体値は後ほど変更があるかもしれないので
+      # 外部変数化しておく
+      # ========================================================
+    - ../vars/filedir.yml
+  tasks:
+    # ========================================================
+    # すべてのサーバに
+    # /var/opt/dataディレクトリをrootユーザー755で作成する。
+    # 当該フォルダ配下にデータ関係を配置する。
+    # ========================================================
+    - file:
+        group={{path.dir.data_root.group}}
+        mode={{path.dir.data_root.permision}}
+        owner={{path.dir.data_root.user}}
+        path={{path.dir.data_root.path}}
+        state={{path.dir.data_root.state}}
+    # ========================================================
+    # すべてのサーバに
+    # /var/opt/data/nfsディレクトリをrootユーザー755で作成する。
+    # 当該フォルダにはインストーラや設定ファイルなどをコピーする。
+    # 後ほどNFSサーバを導入し当該ディレクトにファイルをコピーしたのち
+    # 資源配布を行うようにする
+    # ========================================================
+    - file:
+        group={{path.dir.nfs_root.group}}
+        mode={{path.dir.nfs_root.permision}}
+        owner={{path.dir.nfs_root.user}}
+        path={{path.dir.nfs_root.path}}
+        state={{path.dir.nfs_root.state}}
+
+
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    # ========================================================
+    # adminserv01とapserv01にはTOMCATをインストールするので
+    # TOMCAT関係のディレクトリをtomcatユーザー755で作成する。
+    # /opt/tomcat
+    # /var/opt/data/tomcat/webapps
+    # /var/opt/data/tomcat/work
+    # ========================================================
+    - file:
+        group={{path.dir.tomcat_home.group}}
+        mode={{path.dir.tomcat_home.permision}}
+        owner={{path.dir.tomcat_home.user}}
+        path={{path.dir.tomcat_home.path}}
+        state={{path.dir.tomcat_home.state}}
+    - file:
+        group={{path.dir.tomcat_data_webapps.group}}
+        mode={{path.dir.tomcat_data_webapps.permision}}
+        owner={{path.dir.tomcat_data_webapps.user}}
+        path={{path.dir.tomcat_data_webapps.path}}
+        state={{path.dir.tomcat_data_webapps.state}}
+    - file:
+        group={{path.dir.tomcat_data_work.group}}
+        mode={{path.dir.tomcat_data_work.permision}}
+        owner={{path.dir.tomcat_data_work.user}}
+        path={{path.dir.tomcat_data_work.path}}
+        state={{path.dir.tomcat_data_work.state}}
+
+- hosts: db_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    # ========================================================
+    # adminserv01とdbserv01にはMariadb(mysql)をインストールするので
+    # MariaDB関係のディレクトリをmysqlユーザー755で作成する。
+    # /var/opt/data/mysql
+    # ========================================================
+    - file:
+        group={{path.dir.mysql_data_home.group}}
+        mode={{path.dir.mysql_data_home.permision}}
+        owner={{path.dir.mysql_data_home.user}}
+        path={{path.dir.mysql_data_home.path}}
+        state={{path.dir.mysql_data_home.state}}
+
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    - debug: msg="NFSディレクトリ作成します。"
+    # ========================================================
+    # adminserv01にNFSを後ほどインストールする。
+    #
+    # ①apserv01とdbserv01はNFSクライアントになって
+    # adminserv01にNFS接続し以下のディレクトリから
+    # 資源を取得し各種インストールをすることにする。
+    # ・/var/opt/data/nfs/installer(インストーラやzip置き場)
+    # ・/var/opt/data/nfs/work(一次ディレクトリ)
+    # ・/var/opt/data/nfs/settings(設定ファイル置き場)
+    #
+    #  ②JenkinsとSeleniumはadminserv01にインストーする為
+    #  以下のディレクトリをつくっておく
+    # ・/var/opt/data/jenkins
+    # ・/var/opt/data/selenium
+    # ========================================================
+    - file:
+        group={{path.dir.nfs_installer.group}}
+        mode={{path.dir.nfs_installer.permision}}
+        owner={{path.dir.nfs_installer.user}}
+        path={{path.dir.nfs_installer.path}}
+        state={{path.dir.nfs_installer.state}}
+    - file:
+        group={{path.dir.nfs_work.group}}
+        mode={{path.dir.nfs_work.permision}}
+        owner={{path.dir.nfs_work.user}}
+        path={{path.dir.nfs_work.path}}
+        state={{path.dir.nfs_work.state}}
+    - file:
+        group={{path.dir.nfs_settings.group}}
+        mode={{path.dir.nfs_settings.permision}}
+        owner={{path.dir.nfs_settings.user}}
+        path={{path.dir.nfs_settings.path}}
+        state={{path.dir.nfs_settings.state}}
+    - file:
+        group={{path.dir.jenkins_root.group}}
+        mode={{path.dir.jenkins_root.permision}}
+        owner={{path.dir.jenkins_root.user}}
+        path={{path.dir.jenkins_root.path}}
+        state={{path.dir.jenkins_root.state}}
+
+    - debug: msg="Seleniumディレクトリ作成します。"
+    - file:
+        group={{path.dir.selenium_home.group}}
+        mode={{path.dir.selenium_home.permision}}
+        owner={{path.dir.selenium_home.user}}
+        path={{path.dir.selenium_home.path}}
+        state={{path.dir.selenium_home.state}}
+    - file:
+        group={{path.dir.selenium_log.group}}
+        mode={{path.dir.selenium_log.permision}}
+        owner={{path.dir.selenium_log.user}}
+        path={{path.dir.selenium_log.path}}
+        state={{path.dir.selenium_log.state}}
+
+
+- hosts: apservers
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/filedir.yml
+  tasks:
+    - file:
+    # ========================================================
+    # apserv01は外部公開WEBサーバの為HTTPS利用を前提とする。
+    # 証明書関係を配置する以下のディレクトリを作成する
+    # /etc/ssl/apserv_cets
+    # ========================================================
+        group={{path.dir.ssl_root.group}}
+        mode={{path.dir.ssl_root.permision}}
+        owner={{path.dir.ssl_root.user}}
+        path={{path.dir.ssl_root.path}}
+        state={{path.dir.ssl_root.state}}

@@ -1,0 +1,140 @@
+# ========================================================
+# ローカル(manageterm)にあるファイルをadminserv01にコピーします。
+# (後ほどadminserv01にNFSサーバを導入し
+# ここまで書いてなんですが実際はローカルからサーバにファイルを置く場合は
+# rsyncを使用した方が簡単ですね。
+# ========================================================
+---
+- hosts: adminserv01
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にJDKを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルをコピーする。
+    # ========================================================
+    - name: JAVA関連コピー
+      file: state=directory path=/var/opt/data/nfs/java/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/java/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/java/installer/ dest=/var/opt/data/nfs/java/installer/.
+    -  copy: src=../sendfiles/java/settings/ dest=/var/opt/data/nfs/java/settings/.
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にTOMCATを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: TOMCAT関連コピー
+      file: state=directory path=/var/opt/data/nfs/tomcat/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/tomcat/settings/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/tomcat/firewalld/ follow=no recurse=yes
+    -  copy: src=../sendfiles/tomcat/installer/ dest=/var/opt/data/nfs/tomcat/installer/.
+    -  copy: src=../sendfiles/tomcat/settings/ dest=/var/opt/data/nfs/tomcat/settings/.
+    -  copy: src=../sendfiles/tomcat/firewalld/ dest=/var/opt/data/nfs/tomcat/firewalld/.
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にSeleniumを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: Selnium関連コピー
+      file: state=directory path=/var/opt/data/nfs/selenium/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/selenium/settings/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/selenium/firewalld/ follow=no recurse=yes
+    -  copy: src=../sendfiles/selenium/installer/ dest=/var/opt/data/nfs/selenium/installer/.
+    -  copy: src=../sendfiles/selenium/settings/ dest=/var/opt/data/nfs/selenium/settings/.
+    -  copy: src=../sendfiles/selenium/firewalld/ dest=/var/opt/data/nfs/selenium/firewalld/.
+
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にJenkinsを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: JENIINS関連コピー
+      file: state=directory path=/var/opt/data/nfs/jenkins_mvn/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/jenkins_mvn/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/jenkins_mvn/installer/ dest=/var/opt/data/nfs/jenkins_mvn/installer/.
+    -  copy: src=../sendfiles/jenkins_mvn/settings/ dest=/var/opt/data/nfs/jenkins_mvn/settings/.
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にnfs exportsを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: NFS関連コピー
+      file: state=directory path=/var/opt/data/nfs/nfs/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/nfs/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/nfs/installer/ dest=/var/opt/data/nfs/nfs/installer/.
+    -  copy: src=../sendfiles/nfs/settings/ dest=/var/opt/data/nfs/nfs/settings/.
+
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)に
+    # NMONを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: OS関係:NMON, 環境変数のコピー
+      file: state=directory path=/var/opt/data/nfs/os/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/os/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/os/installer/ dest=/var/opt/data/nfs/os/installer/.
+    -  copy: src=../sendfiles/os/settings/ dest=/var/opt/data/nfs/os/settings/.
+
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)に
+    # Apacheを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: アパッチ関係:サーバ証明書コピー/秘密鍵/SSL設定/apj設定
+      file: state=directory path=/var/opt/data/nfs/apache/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/apache/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/apache/installer/ dest=/var/opt/data/nfs/apache/installer/.
+    -  copy: src=../sendfiles/apache/settings/ dest=/var/opt/data/nfs/apache/settings/.
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にMariaDB(MySQL)
+    # を配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: MarinaDB(MySQL)関係:my.conf
+      file: state=directory path=/var/opt/data/nfs/mysql/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/mysql/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/mysql/installer/ dest=/var/opt/data/nfs/mysql/installer/.
+    -  copy: src=../sendfiles/mysql/settings/ dest=/var/opt/data/nfs/mysql/settings/.
+
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)にopenvpnを配置する為のディレクトリを作成
+    # 作成したらディレクリにローカル(manageterm)から
+    # インストーラと設定ファイルとfirewalld設定をコピーする。
+    # ========================================================
+    - name: openvpn関係
+      file: state=directory path=/var/opt/data/nfs/openvpn/installer/ follow=no recurse=yes
+    - file: state=directory path=/var/opt/data/nfs/openvpn/settings/ follow=no recurse=yes
+    -  copy: src=../sendfiles/openvpn/installer/ dest=/var/opt/data/nfs/openvpn/installer/.
+    -  copy: src=../sendfiles/openvpn/settings/ dest=/var/opt/data/nfs/openvpn/settings/.
+
+    # ========================================================
+    # adminserv01のNFS共有用ディレクトリ(NFS起動前)に
+    # OpenVPNで作成したクライアント証明書を保存するフォルダをコピーする
+    # ========================================================
+    - name: OpenVPNにて作成したクライアント証明書を出力するディレクトリの作成
+      file: state=directory path=/var/opt/data/nfs/output follow=no recurse=yes
+
+    # ========================================================
+    # NFSルートディレクトリ(/var/opt/data/nfs)配下のオーナー/パーミッション
+    # を再帰的にinfra/infara 755に変更する
+    # ========================================================
+    - file: group={{path.dir.nfs_root.group}}
+            mode={{path.dir.nfs_root.permision}}
+            owner={{path.dir.nfs_root.user}}
+            path={{path.dir.nfs_root.path}}
+            state={{path.dir.nfs_root.state}}
+            recurse=true

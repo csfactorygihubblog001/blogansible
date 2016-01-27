@@ -1,0 +1,58 @@
+#!/usr/bin/expect
+
+log_file /var/log/expect.log
+
+set timeout 5
+spawn env LANG=C /usr/bin/mysql_secure_installation
+expect {
+		"Enter current password for root (enter for none):" {
+			send "\n"
+		}
+	}
+
+expect {
+		"connect to local MySQL server through socket" {
+			interact
+			exit 1
+		}
+	}
+
+expect {
+		"Set root password" {
+			send "Y\n"
+		}
+	}
+
+expect {
+		"New password:" {
+		send "password\n"
+		}
+	}
+
+expect {
+		"Re-enter new password:" {
+		send "password\n"
+		}
+	}
+expect {
+		"Remove anonymous users" {
+		send "Y\n"
+		}
+	}
+expect {
+		"Disallow root login remotely" {
+		send "n\n"
+		}
+	}
+expect {
+		"Remove test database and access to it" {
+		send "Y\n"
+		}
+	}
+expect {
+		"Reload privilege tables now" {
+		send "Y\n"
+		}
+	}
+	interact
+	exit 0

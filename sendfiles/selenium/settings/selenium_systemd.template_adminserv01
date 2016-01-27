@@ -1,0 +1,12 @@
+[Unit]
+Description=SelniumGrid
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/selenium/selenium.sh start_hub
+ExecStop=/opt/selenium/selenium.sh stop
+KillMode=none
+
+[Install]
+WantedBy=muliti-user.target

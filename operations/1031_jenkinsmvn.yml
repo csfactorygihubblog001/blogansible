@@ -1,0 +1,39 @@
+# ========================================================
+# adminserv01にjenkinsをインストールする(jenkinsmvn,yml)
+# ========================================================
+---
+- hosts: adminserv01
+  sudo: no
+  vars_files:
+    - ../vars/filedir.yml
+  remote_user: root
+  tasks:
+    # ========================================================
+    # mavenをunzipして/opt配下に配置する
+    # ========================================================
+    - name: Mavenのunzip
+      command: tar zxvf /var/opt/data/nfs/jenkins_mvn/installer/apache-maven-3.3.3-bin.tar.gz -C /opt/.
+
+    # ========================================================
+    # mavenディレクトリを削除する(冪等性担保)
+    # ========================================================
+    - name: Mavenの削除
+      command: rm -rf /opt/maven
+
+    # ========================================================
+    # mavenディレクトリmaven3.3.3をmavenにリネーム
+    # ========================================================
+    - name: Mavenのrename
+      command: mv /opt/apache-maven-3.3.3 /opt/maven
+
+    # ========================================================
+    # Jenkinsファイルを削除する
+    # ========================================================
+    - name: jenkinsの削除
+      command: rm -rf /opt/tomcat/webapps/jenkins.war
+
+    # ========================================================
+    # Jenkins.warをtomcat webappp配下にコピーうする
+    # ========================================================
+    - name: jenkinsの配置
+      shell: cp /var/opt/data/nfs/jenkins_mvn/installer/jenkins.war /opt/tomcat/webapps/.

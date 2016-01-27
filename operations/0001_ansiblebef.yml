@@ -1,0 +1,20 @@
+#===========================================================================
+# これはなし
+#===========================================================================
+---
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+
+    # ========================================================
+    #AnsibleにてSELinuxを実行するのに必要
+    # ========================================================
+- command: wget {{ jdk }} chdir=/tmp
+- command: mv /tmp/{{ jdk_pkg }}* /tmp/{{ jdk_pkg }}
+  ignore_errors: True
+- command: yum localinstall -y --nogpgcheck /tmp/{{ jdk_pkg }}
+
+# Set sym link
+- command: mv /usr/bin/java /usr/bin/java.bk
+- file: src=/usr/java/default/bin/java dest=/usr/bin/java state=link

@@ -1,0 +1,88 @@
+# ========================================================
+# アパッチの設定ファイル(apache.yml)
+# ========================================================
+---
+# ========================================================
+# apserv01,adminserv01の両方に設定
+# ========================================================
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # apacheとtomcatを連携させるajpの設定ファイルをコピーする
+    # ========================================================
+    - debug: msg="設定ファイルをコピー"
+    - shell: cp /var/opt/data/nfs/apache/settings/ajp.conf_{{inventory_hostname}} /etc/httpd/conf.d/ajp.conf
+
+    - name: 権限変更
+      debug: msg=権限変更
+    - file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/ajp.conf state=file
+
+
+# ========================================================
+# apserv01に設定
+# apserv01は公開サーバ
+# ========================================================
+- hosts: apserv01
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # apser01にはあらかじめ証明書機関により発行してもらった
+    # サーバ秘密鍵/公開鍵証明書/認証機関公開鍵証明書(CA)を所定の
+    # ディレクトリに配置
+    # SSL.confもコピーする
+    # ========================================================
+    - debug: msg="設定ファイルをコピー"
+    - shell: cp /var/opt/data/nfs/apache/settings/server_cert.pem_{{inventory_hostname}} /etc/httpd/conf.d/server_cert.pem
+    - shell: cp /var/opt/data/nfs/apache/settings/server_key.pem.nopass_{{inventory_hostname}} /etc/httpd/conf.d/server_key.pem.nopass
+    - shell: cp /var/opt/data/nfs/apache/settings/ssl.conf_{{inventory_hostname}} /etc/httpd/conf.d/ssl.conf
+
+    # ========================================================
+    # 証明書のオーナーとパーミッションを設定
+    # オーナー=apache パーミッション644
+    # ========================================================
+    - name: 権限変更
+      debug: msg="権限変更"
+    - file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/server_key.pem.nopass state=file
+    - file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/ssl.conf state=file
+    - file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/server_cert.pem state=file
+
+
+# ========================================================
+# adminserv01に設定
+# adminserv01はJenkins等のミドルウェアのHTTP部分を管理する為に使用する
+# ========================================================
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # SVNの設定ファイルを配置する
+    # ========================================================
+    - name: SVNの設定ファイルを配置
+    - shell: cp /var/opt/data/nfs/apache/settings/subversion.conf_{{inventory_hostname}} /etc/httpd/conf.d/subversion.conf
+
+    # ========================================================
+    # SVNの設定ファイルのオーナーパーミッションを設定
+    # オーナー=apache パーミッション644
+    # ========================================================
+    - name: 権限変更
+      file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/subversion.conf state=file
+
+
+
+# ========================================================
+# apserv01,adminserv01の両方
+# ========================================================
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # apserv01,adminserv01のアパッチサービスを再起動する
+    # ========================================================
+    - name: サービスの再起動を行う
+      service: name=httpd enabled=yes state=restarted
+      ignore_errors: True

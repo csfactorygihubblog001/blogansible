@@ -1,0 +1,55 @@
+- hosts: manageterm
+  sudo: no
+  remote_user: root
+  tasks:
+    - name: Rubyの存在確認
+      shell: which ruby
+      register: java_ruby
+      failed_when: java_ruby.rc not in [0, 1]
+
+
+    - name: gitからrbenvをクローンする
+      git: repo=https://github.com/sstephenson/rbenv.git dest=~/.rbenv
+      when: java_ruby.rc == 1
+
+    - name: rubyプラグイン
+      git: repo=https://github.com/sstephenson/ruby-build.git dest=/root/.rbenv/plugins/ruby-build
+      when: java_ruby.rc == 1
+
+    - name: profile.d設定
+      shell: cp /etc/ansible/sendfiles/os/settings/profile_init.sh /etc/profile.d/.
+      when: java_ruby.rc == 1
+
+    - name: パーミッション変更
+      shell: chmod 755  /etc/profile.d/profile_init.sh 
+      when: java_ruby.rc == 1
+
+    - name: resolv.conf追加
+      shell: cp /etc/ansible/sendfiles/os/settings/resolv.conf /etc/.
+      when: java_ruby.rc == 1
+
+
+    - name: 変更
+      replace:  dest=/etc/profile.d/profile_init.sh regexp="^#REPLACE_EXECRBENV" replace='eval "$(rbenv init -)" >/dev/null 2>&1'
+      when: java_ruby.rc == 1
+
+    - name: bashの実行
+      shell: /etc/profile.d/profile_init.sh
+      when: java_ruby.rc == 1
+
+    - name: 2.1.7のインストール
+      command: rbenv install 2.1.7
+      when: java_ruby.rc == 1
+
+    - name: 2.2.0のインストール
+      command: rbenv install 2.2.0
+      when: java_ruby.rc == 1
+
+    - name: 2.1.7をデフォルトに設定
+      command: rbenv rehash
+      command: rbenv global 2.1.7
+      when: java_ruby.rc == 1
+
+
+
+

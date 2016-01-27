@@ -1,0 +1,102 @@
+# ========================================================
+# ユーザーの追加(usergroup.yml)
+# ========================================================
+
+# ========================================================
+# 全サーバ共通のユーザーを作成
+# Ainsibleはすべてuserで行うが、運用時にはinfraユーザー
+# を利用しサーバ運用を行う。
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/usergroup.yml
+  tasks:
+    - name: infraグループ追加
+      group:
+        name={{usergroup.infra.group }}
+        gid={{usergroup.infra.gid}}
+    - name: infraユーザー追加
+      user:
+        name={{usergroup.infra.user}}
+        uid={{usergroup.infra.uid}}
+        group={{usergroup.infra.group}}
+        update_password=always
+        password={{usergroup.infra.password}}
+
+
+# ========================================================
+# ap_admin(apserv01とadminserv01)に適用
+#  ・apacheグループ/ユーザーの用途
+#     ・adminserv01
+#         ・CI(Jenkins)用HTTPサーバ
+#         ・adminserv01はapserv01にデプロイする前にテスト用途としても使用する
+#     ・apserv01
+#         ・Webアプリケーション用HTTPサーバ
+#  ・tomcatグループ/ユーザーの用途
+#     ・adminserv01
+#         ・CI(Jenkins)用JavaApplicationサーバ
+#         ・adminserv01はAPサーバにデプロイする前にテスト用途としても使用する
+#     ・apserv01
+#         ・Webアプリケーション用JavaApplicationサーバ
+# ========================================================
+- hosts: ap_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/usergroup.yml
+  tasks:
+    - name: apacheグループ追加
+      group: name={{usergroup.apache.group }} gid={{usergroup.apache.gid}}
+    - name: tomcatグループ追加
+      group: name={{usergroup.tomcat.group }} gid={{usergroup.tomcat.gid}}
+    - name: apacheユーザー追加
+      user: name={{usergroup.apache.user}} uid={{usergroup.apache.uid}} group={{usergroup.apache.group}} update_password=always  password={{usergroup.apache.password}}
+    - name: tomcatユーザー追加
+      user: name={{usergroup.tomcat.user}} uid={{usergroup.tomcat.uid}} group={{usergroup.tomcat.group}}  update_password=always password={{usergroup.tomcat.password}}
+
+# ========================================================
+# db_admin(dbserv01とadminserv01)に適用
+#  ・mysqlグループ/ユーザーの用途
+#     ・adminserv01
+#         ・adminserv01はdbサーバへの本番以降前にテスト用途としても使用する
+#     ・dbserv01
+#         ・本番データベースサーバ
+# ========================================================
+- hosts: db_admin
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/usergroup.yml
+  tasks:
+    - name: mysqlグループ追加
+      group: name={{usergroup.mysql.group }} gid={{usergroup.mysql.gid}}
+    - name: mysqlユーザー追加
+      user: name={{usergroup.mysql.user}}
+            uid={{usergroup.mysql.uid}}
+            group={{usergroup.mysql.group}}
+            update_password=always
+            password={{usergroup.mysql.password}}
+
+
+# ========================================================
+# adminserv01に適用
+#  ・seleniumグループ/ユーザーの用途
+#     ・adminserv01
+#         ・WEBGUIテスティングの起動/制御を行うSelniumGridを動作させる
+# ========================================================
+- hosts: adminservers
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/usergroup.yml
+  tasks:
+    - name: seleniumグループ追加
+      group: name={{usergroup.selenium.group }} gid={{usergroup.selenium.gid}}
+    - name: seleniumユーザー追加
+      user: name={{usergroup.selenium.user}}
+            uid={{usergroup.selenium.uid}}
+            group={{usergroup.selenium.group}}
+            update_password=always
+            password={{usergroup.selenium.password}}

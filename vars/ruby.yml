@@ -1,0 +1,24 @@
+#      rvenv:
+#        path: /usr/rbenv
+#        user: root
+#        group: root
+#        state: directory
+#        permision: 755
+#        exec: /usr/rbenv/bin/rbenv
+#        plugin_biuld: /usr/rbenv/plugins/ruby-build
+#        rbenv_git: https://github.com/sstephenson/rbenv.git
+#        rbenv_plugin_git: https://github.com/sstephenson/ruby-build.git
+#        install1: 2.1.7
+#        install2: 2.2.0
+      rvenv:
+        path: /root/.rbenv
+        user: root
+        group: root
+        state: directory
+        permision: 755
+        exec: /root/.rbenv/bin/rbenv
+        plugin_biuld: /root/.rbenv/plugins/ruby-build
+        rbenv_git: https://github.com/sstephenson/rbenv.git
+        rbenv_plugin_git: https://github.com/sstephenson/ruby-build.git
+        install1: 2.1.7
+        install2: 2.2.0

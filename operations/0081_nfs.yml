@@ -1,0 +1,47 @@
+# ========================================================
+# NFSサーバとNFSクライアント設定(nfs.yml)
+# ========================================================
+---
+- hosts: adminserv01
+  sudo: no
+  remote_user: root
+  vars_files:
+    - ../vars/enviroment.yml
+  tasks:
+    # ========================================================
+    # NFS用設定ファイルを指定場所(/etc/exports)に配置する
+    # exportsの#EXP_NETWORK文字列を置換する(環境依存部分)
+    # ========================================================
+    - name: NFS設定ファイルはexportsを指定場所に配置(ファイルは常に再配置)
+      shell: cp /var/opt/data/nfs/nfs/settings/exports /etc/exports
+
+    - name: "許可するネットワークセグメントを置換する(#EXP_NETWORKを指定値に置換する)"
+      replace: dest=/etc/exports regexp="#EXP_NETWORK" replace="{{nfs.exportnetwork}}"
+
+    - name: "rcpbindとnfs-serverをRestartする"
+      service: name=rpcbind state=restarted enabled=yes
+    - service: name=nfs-server state=restarted enabled=yes
+
+
+# ========================================================
+# apserv01へ/etc/fstabにadminserv01へのマウント指定
+# ========================================================
+- hosts: apserv01
+  sudo: no
+  remote_user: root
+  tasks:
+    - name: "(apserv01)rcpbindを使用可能にし、/etc/fstabにadminserv01へのマウント設定"
+      service: name=rpcbind state=started enabled=yes
+    - mount: name=/var/opt/data/nfs src=adminserv01:/var/opt/data/nfs  fstype=nfs state=mounted
+
+
+# ========================================================
+# apserv01へ/etc/fstabにadminserv01へのマウント指定
+# ========================================================
+- hosts: dbserv01
+  sudo: no
+  remote_user: root
+  tasks:
+    - name: "(apserv01)rcpbindを使用可能にし、/etc/fstabにadminserv01へのマウント設定"
+      service: name=rpcbind state=started enabled=yes
+    - mount: name=/var/opt/data/nfs src=adminserv01:/var/opt/data/nfs  fstype=nfs  state=mounted

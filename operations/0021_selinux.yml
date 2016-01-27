@@ -1,0 +1,16 @@
+# ========================================================
+# SELinuxを無効化する(selinux.yml)
+# すべてのサーバのSELinuxを無効化する
+# ========================================================
+- hosts: all
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # 凝縮度を高めるならここでyumでパッケージインストールする。
+    #    - name: Install libselinux-python
+    #      yum: name=libselinux-python state=present
+    # ========================================================
+    - name: SELinuxのDisable設定
+      selinux: state=disabled
+
