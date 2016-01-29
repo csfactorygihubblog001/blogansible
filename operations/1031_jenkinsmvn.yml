@@ -27,13 +27,29 @@
       command: mv /opt/apache-maven-3.3.3 /opt/maven
 
     # ========================================================
+    # mavenディレクトリmaven3.3.3をmavenにリネームして環境変数に適用
+    # ========================================================
+    - name: Mavenのrename
+      lineinfile: state=present dest=/etc/profile.d/profile_init.sh regexp='^export MAVEN_HOME=/opt/maven' line='export MAVEN_HOME=/opt/maven' create=yes
+    - lineinfile: state=present dest=/etc/profile.d/profile_init.sh regexp='^export PATH=${MAVEN_HOME}/bin:${PATH}' line='export PATH=${MAVEN_HOME}/bin:${PATH}' create=yes
+    - shell: /etc/profile.d/profile_init.sh
+
+
+    # ========================================================
     # Jenkinsファイルを削除する
     # ========================================================
     - name: jenkinsの削除
       command: rm -rf /opt/tomcat/webapps/jenkins.war
 
     # ========================================================
-    # Jenkins.warをtomcat webappp配下にコピーうする
+    # Jenkins.warをtomcat webappp配下にコピーする
     # ========================================================
     - name: jenkinsの配置
       shell: cp /var/opt/data/nfs/jenkins_mvn/installer/jenkins.war /opt/tomcat/webapps/.
+
+
+    # ========================================================
+    # Jenkisnを起動状態にする
+    # ========================================================
+    - name: jenkinsの配置
+      service: name=tomcat enabled=yes state=restarted
