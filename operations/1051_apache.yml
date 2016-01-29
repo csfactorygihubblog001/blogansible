@@ -57,12 +57,14 @@
 - hosts: adminserv01
   sudo: no
   remote_user: root
+  vars_files:
+    - ../vars/enviroment.yml
   tasks:
     # ========================================================
     # SVNの設定ファイルを配置する
     # ========================================================
     - name: SVNの設定ファイルを配置
-    - shell: cp /var/opt/data/nfs/apache/settings/subversion.conf_{{inventory_hostname}} /etc/httpd/conf.d/subversion.conf
+      shell: cp /var/opt/data/nfs/apache/settings/subversion.conf_{{inventory_hostname}} /etc/httpd/conf.d/subversion.conf
 
     # ========================================================
     # SVNの設定ファイルのオーナーパーミッションを設定
@@ -71,6 +73,28 @@
     - name: 権限変更
       file: group=apache mode=644 owner=apache path=/etc/httpd/conf.d/subversion.conf state=file
 
+    # ========================================================
+    # htpasswdファイルの作成
+    # ========================================================
+    - name: htpasswdファイルのパーミッション変更
+      htpasswd:
+        path=/var/opt/data/subversion/repo/.htpasswd
+        name={{apache.user01.name}}
+        password={{apache.user01.password}}
+    - htpasswd:
+        path=/var/opt/data/subversion/repo/.htpasswd
+        name={{apache.user02.name}}
+        password={{apache.user02.password}}
+    - htpasswd:
+        path=/var/opt/data/subversion/repo/.htpasswd
+        name={{apache.user03.name}}
+        password={{apache.user03.password}}
+    - file:
+        group=apache
+        mode=644
+        owner=apache
+        path=/var/opt/data/subversion/repo/.htpasswd
+        state=file
 
 
 # ========================================================
