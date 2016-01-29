@@ -36,6 +36,10 @@
     - yum: name={{rpm.package.mlocate }} state=present
     - yum: name={{rpm.package.mariadb }} state=present
     - yum: name={{rpm.package.expect }} state=present
+    - yum: name={{rpm.package.lsof }} state=present
+    - yum: name={{rpm.package.python_passlib }} state=present
+
+
     # ========================================================
     #AnsibleにてSELinuxを実行するのに必要
     # ========================================================

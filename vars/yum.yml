@@ -28,5 +28,7 @@
       expect: expect
       libselinux_python: libselinux-python
       easy_rsa: easy-rsa
+      lsof: lsof
+      python_passlib: python-passlib
 
 
