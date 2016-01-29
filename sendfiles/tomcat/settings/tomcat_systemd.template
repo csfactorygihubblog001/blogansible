@@ -6,6 +6,7 @@ After=syslog.target network.target
 Type=forking
 EnvironmentFile=/etc/sysconfig/tomcatenviroment
 ExecStart=/opt/tomcat/bin/startup.sh
+ExecReload=/opt/tomcat/bin/shutdown.sh;sleep 5;/opt/tomcat/bin/startup.sh
 ExecStop=/opt/tomcat/bin/shutdown.sh
 KillMode=none
 
