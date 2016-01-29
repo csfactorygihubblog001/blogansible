@@ -110,15 +110,15 @@
   sudo: no
   vars_files:
     - ../vars/filedir.yml
+    - ../vars/enviroment.yml
   remote_user: root
   tasks:
       #==================================================================
       #adminserv01のserver.xmlの変数を置換する
       #==================================================================
     - name: server.xmlのIPアドレス部分を修正
-      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="192.168.102.198"
+      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="{{tomcat.bindip_admin}}"
       when: not tomcatexists.stat.exists
-
 #==================================================================
 #apserv01用にサーバXMLを編集
 #==================================================================
@@ -126,13 +126,14 @@
   sudo: no
   vars_files:
     - ../vars/filedir.yml
+    - ../vars/enviroment.yml
   remote_user: root
   tasks:
       #==================================================================
       #apserv01のserver.xmlの変数を置換する
       #==================================================================
     - name: server.xmlのIPアドレス部分を修正
-      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="192.168.102.196"
+      replace: dest="/opt/tomcat/conf/server.xml" regexp="<<SERVER_GLOBAL_IP>>" replace="{{tomcat.bindip_ap}}"
       when: not tomcatexists.stat.exists
 
 

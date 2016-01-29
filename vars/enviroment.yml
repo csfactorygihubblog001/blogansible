@@ -15,3 +15,7 @@ apache:
 openvpn:
   client_route: 192.168.102.0
   vpn_network: 10.99.0.0
+
+tomcat:
+  bindip_admin: 192.168.134.198
+  bindip_ap: 192.168.134.196
