@@ -22,6 +22,25 @@
       service: name=rpcbind state=restarted enabled=yes
     - service: name=nfs-server state=restarted enabled=yes
 
+- hosts: ap_db
+  sudo: no
+  remote_user: root
+  tasks:
+    # ========================================================
+    # マウント先が削除されて参照ができなくなってるいる状態
+    # ========================================================
+    - shell: ls /var/opt/data/nfs
+      register: mounted_err
+      ignore_errors: true
+    # ========================================================
+    # すべてのサーバに
+    # /var/opt/data/nfsディレクトリをrootユーザー755で作成する。
+    # 当該フォルダにはインストーラや設定ファイルなどをコピーする。
+    # 後ほどNFSサーバを導入し当該ディレクトにファイルをコピーしたのち
+    # 資源配布を行うようにする
+    # ========================================================
+    - shell: umount /var/opt/data/nfs
+      when: mounted_err.rc == 2
 
 # ========================================================
 # apserv01へ/etc/fstabにadminserv01へのマウント指定
@@ -30,6 +49,7 @@
   sudo: no
   remote_user: root
   tasks:
+
     - name: "(apserv01)rcpbindを使用可能にし、/etc/fstabにadminserv01へのマウント設定"
       service: name=rpcbind state=started enabled=yes
     - mount: name=/var/opt/data/nfs src=adminserv01:/var/opt/data/nfs  fstype=nfs state=mounted
@@ -42,6 +62,7 @@
   sudo: no
   remote_user: root
   tasks:
+
     - name: "(apserv01)rcpbindを使用可能にし、/etc/fstabにadminserv01へのマウント設定"
       service: name=rpcbind state=started enabled=yes
     - mount: name=/var/opt/data/nfs src=adminserv01:/var/opt/data/nfs  fstype=nfs  state=mounted
