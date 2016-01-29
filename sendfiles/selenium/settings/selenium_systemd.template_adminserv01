@@ -5,6 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=forking
 ExecStart=/opt/selenium/selenium.sh start_hub
+ExecReload=/opt/selenium/selenium.sh restart
 ExecStop=/opt/selenium/selenium.sh stop
 KillMode=none
 

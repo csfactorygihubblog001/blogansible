@@ -67,7 +67,7 @@
     # tomcatユーザー/パーミッション755
     #==================================================================
     - name: 未インストールの場合：パーミッションとユーザーの変更
-      file: group=selenium mode=755 owner=selenium path=/opt/selenium state=directory
+      file: group=selenium mode=755 owner=selenium path=/opt/selenium state=directory recurse=yes
       when: not selenium_exists.stat.exists
 
     #==================================================================
@@ -84,4 +84,3 @@
     #==================================================================
     - name: Selniumサービスを起動する
       service: name=selenium enabled=yes state=restarted
-      ignore_errors: True
