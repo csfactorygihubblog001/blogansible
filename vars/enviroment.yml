@@ -1,3 +1,17 @@
 ---
 nfs:
   exportnetwork: 192.168.134.0
+apache:
+  user01:
+    name: user01
+    password: user01
+  user02:
+    name: user02
+    password: user02
+  user03:
+    name: user03
+    password: user03
+
+openvpn:
+  client_route: 192.168.102.0
+  vpn_network: 10.99.0.0
