@@ -7,31 +7,30 @@ spawn env LANG=C /usr/bin/mysql_secure_installation
 expect {
 		"Enter current password for root (enter for none):" {
 			send "\n"
+			exp_continue
 		}
-	}
-
-expect {
+		"'root'@'localhost' (using password: NO)" {
+			send "<<PASSWORD>>\n"
+			exp_continue
+		}
 		"connect to local MySQL server through socket" {
 			interact
 			exit 1
+			exp_continue
 		}
-	}
-
-expect {
 		"Set root password" {
 			send "Y\n"
+			exp_continue
 		}
-	}
 
-expect {
 		"New password:" {
-		send "password\n"
+			send "<<PASSWORD>>\n"
+			exp_continue
 		}
-	}
 
-expect {
 		"Re-enter new password:" {
-		send "password\n"
+			send "<<PASSWORD>>\n"
+			exp_continue
 		}
 	}
 expect {

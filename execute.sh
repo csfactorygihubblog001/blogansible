@@ -1,7 +1,8 @@
 #!/bin/bash
 declare -A extra_hash
-extra_hash["reinstall_openvpn"]="yes"
+extra_hash["reinstall_openvpn"]="no"
 extra_hash["reinstall_selenium"]="no"
+extra_hash["reinstall_mysql"]="yes"
 extra_vars=""
 for key in ${!extra_hash[@]}; do
 	tmp="\"${key}\" : \"${extra_hash[$key]}\""
