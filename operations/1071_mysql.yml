@@ -7,7 +7,17 @@
   remote_user: root
   vars_files:
     - ../vars/filedir.yml
+    - ../vars/enviroment.yml
   tasks:
+    - name: mariadbの再インストール確認
+      debug: msg="mariadbの再インストール確認"
+#      service: name=mariadb enabled=true state=stopped
+#      ignore_errors: True
+#      when: reinstall_mysql=='yes'
+
+    - shell: "rm /var/opt/data/mysql/installok"
+      when: reinstall_mysql=='yes'
+      ignore_errors: True
     # ========================================================
     # my.cnfに以下の設定を記述済
     # ・DBサーバ設定の文字コードをUTF-8にする
@@ -44,6 +54,18 @@
     # ========================================================
     - name: mysql.sockのシンボリックリンク作成
       file: src=/var/opt/data/mysql/mysql.sock  path=/var/lib/mysql/mysql.sock state=link
+
+    # ========================================================
+    # mysql_secure_instalationの環境固有(パスワード)を置換する
+    # ========================================================
+    - name: mysql_secure_installationのexpect対話ファイルのパスワードを置換する
+      replace:
+        dest=/var/opt/data/nfs/mysql/settings/init.exp
+        replace={{mysql.password}}
+        regexp=<<PASSWORD>>
+      when: not mysql_exists.stat.exists
+
+
 
     # ========================================================
     # mysql_secure_instalationは対話型のインストールの為expectを使用する
