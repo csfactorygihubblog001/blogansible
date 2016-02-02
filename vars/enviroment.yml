@@ -23,3 +23,10 @@ tomcat:
 mysql:
   password: password
 
+nic:
+  vpn: tun0
+  lo: lo
+  outer: enp0s9
+  inner: enp0s8
+
+
