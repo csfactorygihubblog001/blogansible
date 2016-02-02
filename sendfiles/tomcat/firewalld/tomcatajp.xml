@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>tomcatajp</short>
+  <description>TOMCAT AJP ACCESS</description>
+  <port protocol="tcp" port="8009"/>
+</service>
