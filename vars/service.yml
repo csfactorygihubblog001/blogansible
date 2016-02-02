@@ -28,3 +28,6 @@ system:
     tomcat:
       port: 8080
       name: "tomcat"
+    tomcatajp:
+      port: 8009
+      name: "tomcatajp"
