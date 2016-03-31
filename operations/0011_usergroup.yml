@@ -14,16 +14,9 @@
     - ../vars/usergroup.yml
   tasks:
     - name: infraグループ追加
-      group:
-        name={{usergroup.infra.group }}
-        gid={{usergroup.infra.gid}}
+      group: name={{usergroup.infra.group }} gid={{usergroup.infra.gid}}
     - name: infraユーザー追加
-      user:
-        name={{usergroup.infra.user}}
-        uid={{usergroup.infra.uid}}
-        group={{usergroup.infra.group}}
-        update_password=always
-        password={{usergroup.infra.password}}
+      user: name={{usergroup.infra.user}} uid={{usergroup.infra.uid}} group={{usergroup.infra.group}} update_password=always password={{usergroup.infra.password}}
 
 
 # ========================================================
