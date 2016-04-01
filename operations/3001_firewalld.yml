@@ -39,19 +39,11 @@
 
     - name: SSHの不許可
       firewalld:
-        service=ssh
-        zone="dmz"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=ssh zone="dmz" permanent=true state=disabled immediate=yes
 
     - name: OPENVPNの許可
       firewalld:
-        service={{ system.service.openvpn.name }}
-        zone="dmz"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.openvpn.name }} zone="dmz" permanent=true state=enabled immediate=yes
 
     # ========================================================
     # ・internalゾーン内部接続(enp0s8))の設定
@@ -64,99 +56,51 @@
 
     - name: dhcpv6-clientの不許可
       firewalld:
-        service=dhcpv6-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=dhcpv6-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: ipp-clientの不許可
       firewalld:
-        service=ipp-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=ipp-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: mdnsの不許可
       firewalld:
-        service=mdns
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=mdns zone="internal" permanent=true state=disabled immediate=yes
 
     - name: samba-clientの不許可
       firewalld:
-        service=samba-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=samba-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: sshの許可
       firewalld:
-        service=ssh
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service=ssh zone="internal" permanent=true state=enabled immediate=yes
 
     - name: HTTPの許可
       firewalld:
-        service={{ system.service.http.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.http.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: TOMCATの許可
       firewalld:
-        service={{ system.service.tomcat.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.tomcat.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: TOMCAT-AJPの許可
       firewalld:
-        service={{ system.service.tomcatajp.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.tomcatajp.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: RCP-BIND(NFS)の許可
       firewalld:
-        service={{ system.service.rpcbind.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.rpcbind.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: NFS(NFS)の許可
       firewalld:
-        service={{ system.service.nfs.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.nfs.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: seleniumの許可
       firewalld:
-        service={{ system.service.selenium.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.selenium.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: mysqlの許可
       firewalld:
-        service={{ system.service.mysql.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.mysql.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     # ========================================================
     # ・リロード
@@ -192,27 +136,15 @@
 
     - name: SSHの不許可
       firewalld:
-        service=ssh
-        zone="dmz"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=ssh zone="dmz" permanent=true state=disabled immediate=yes
 
     - name: HTTPの許可
       firewalld:
-        service={{ system.service.http.name }}
-        zone="dmz"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.http.name }} zone="dmz" permanent=true state=enabled immediate=yes
 
     - name: HTTPSの許可
       firewalld:
-        service={{ system.service.https.name }}
-        zone="dmz"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.https.name }} zone="dmz" permanent=true state=enabled immediate=yes
 
     # ========================================================
     # ・internalゾーン内部接続(enp0s8))の設定
@@ -225,83 +157,41 @@
 
     - name: dhcpv6-clientの不許可
       firewalld:
-        service=dhcpv6-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=dhcpv6-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: ipp-clientの不許可
       firewalld:
-        service=ipp-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=ipp-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: mdnsの不許可
       firewalld:
-        service=mdns
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=mdns zone="internal" permanent=true state=disabled immediate=yes
 
     - name: samba-clientの不許可
       firewalld:
-        service=samba-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=samba-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: sshの許可
-      firewalld:
-        service=ssh
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+      firewalld: service=ssh zone="internal" permanent=true state=enabled immediate=yes
 
     - name: HTTPの許可
-      firewalld:
-        service={{ system.service.http.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+      firewalld: service={{ system.service.http.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: HTTPSの許可
       firewalld:
-        service={{ system.service.https.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.https.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: TOMCATの許可
       firewalld:
-        service={{ system.service.tomcat.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.tomcat.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: TOMCATAJPの許可
       firewalld:
-        service={{ system.service.tomcatajp.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.tomcatajp.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     - name: NTPの許可
       firewalld:
-        service={{ system.service.ntp.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.ntp.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     # ========================================================
     # ・リロード
@@ -347,51 +237,27 @@
 
     - name: dhcpv6-clientの不許可
       firewalld:
-        service=dhcpv6-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=dhcpv6-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: ipp-clientの不許可
       firewalld:
-        service=ipp-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=ipp-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: mdnsの不許可
       firewalld:
-        service=mdns
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=mdns zone="internal" permanent=true state=disabled immediate=yes
 
     - name: samba-clientの不許可
       firewalld:
-        service=samba-client
-        zone="internal"
-        permanent=true
-        state=disabled
-        immediate=yes
+        service=samba-client zone="internal" permanent=true state=disabled immediate=yes
 
     - name: sshの許可
       firewalld:
-        service=ssh
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service=ssh zone="internal" permanent=true state=enabled immediate=yes
 
     - name: mysqlの許可
       firewalld:
-        service={{ system.service.mysql.name }}
-        zone="internal"
-        permanent=true
-        state=enabled
-        immediate=yes
+        service={{ system.service.mysql.name }} zone="internal" permanent=true state=enabled immediate=yes
 
     # ========================================================
     # ・リロード
