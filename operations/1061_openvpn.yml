@@ -203,50 +203,26 @@
     # ========================================================
     - name: ファイルのパーミッションを変更
       file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/ca.crt
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/ca.crt
       when: not rsa_exist.stat.exists
     - file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/server.key
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/server.key
       when: not rsa_exist.stat.exists
 
     - file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/server.crt
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/server.crt
       when: not rsa_exist.stat.exists
 
     - file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/crl.pem
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/crl.pem
       when: not rsa_exist.stat.exists
 
     - file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/dh2048.pem
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/dh2048.pem
       when: not rsa_exist.stat.exists
 
     - file:
-        state=file
-        owner=root
-        group=root
-        mode=0500
-        path=/etc/openvpn/index.txt
+        state=file owner=root group=root mode=0500 path=/etc/openvpn/index.txt
       when: not rsa_exist.stat.exists
 
     # ========================================================
